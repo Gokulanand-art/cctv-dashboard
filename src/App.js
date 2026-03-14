@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 // ── Backend URL — update this after deploying your backend on Render ──
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://cctv-backend-1zw0.onrender.com";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "https://cctv-backend-production.up.railway.app";
 
 // ── Color palette mapping ────────────────────────────────────────
 const COLOR_HEX = {
