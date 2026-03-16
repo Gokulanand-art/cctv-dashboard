@@ -185,8 +185,6 @@ export default function App() {
 
   useEffect(() => {
     fetchLatest(); fetchHistory();
-    const interval = setInterval(fetchLatest, 10000);
-    return () => clearInterval(interval);
   }, []);
 
   if (loading) return (
@@ -279,7 +277,7 @@ export default function App() {
       </div>
 
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#080d14", borderTop: "1px solid #1e293b", padding: "8px 16px", textAlign: "center" }}>
-        <div style={{ color: "#2f6846", fontSize: 11 }}>● Auto-refreshes every 10s {lastUpdated && `· ${lastUpdated}`}</div>
+        <button onClick={() => { fetchLatest(); fetchHistory(); }} style={{ background: "none", border: "1px solid #1e293b", color: "#4299e1", borderRadius: 8, padding: "6px 20px", cursor: "pointer", fontSize: 13, fontWeight: 700 }}>🔄 Refresh {lastUpdated && `· ${lastUpdated}`}</button>
       </div>
     </div>
   );
