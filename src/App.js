@@ -76,6 +76,13 @@ function PersonModal({ card, onClose }) {
           ))}
         </div>
 
+        {card.snapshot_b64 && (
+          <div style={{ background: "#080d14", borderRadius: 12, padding: 16, marginBottom: 12, border: "1px solid #1e293b", textAlign: "center" }}>
+            <div style={{ color: "#4a5568", fontSize: 11, letterSpacing: "0.1em", marginBottom: 10 }}>SNAPSHOT</div>
+            <img src={`data:image/jpeg;base64,${card.snapshot_b64}`} alt="snapshot" style={{ maxHeight: 200, borderRadius: 8, border: "1px solid #1e293b" }} />
+          </div>
+        )}
+
         <div style={{ background: "#080d14", borderRadius: 12, padding: 16, marginBottom: 12, border: "1px solid #1e293b" }}>
           <div style={{ color: "#4a5568", fontSize: 11, letterSpacing: "0.1em", marginBottom: 12 }}>APPEARANCE</div>
           <div style={{ display: "flex", gap: 32 }}>
@@ -141,6 +148,8 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // filename to delete
+  const longPressTimer = React.useRef(null);
 
   const fetchLatest = async () => {
     try {
@@ -152,6 +161,22 @@ export default function App() {
 
   const fetchHistory = async () => {
     try { const res = await fetch(`${BACKEND_URL}/history`); setHistory(await res.json()); } catch (e) { console.error(e); }
+  };
+
+  const deleteHistoryFile = async (filename) => {
+    try {
+      await fetch(`${BACKEND_URL}/history/${filename}`, { method: "DELETE" });
+      setHistory(prev => prev.filter(f => f !== filename));
+      setDeleteConfirm(null);
+    } catch (e) { console.error(e); }
+  };
+
+  const startLongPress = (filename) => {
+    longPressTimer.current = setTimeout(() => setDeleteConfirm(filename), 600);
+  };
+
+  const cancelLongPress = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
   };
 
   const loadHistoryFile = async (filename) => {
@@ -193,6 +218,19 @@ export default function App() {
 
       {selected && <PersonModal card={selected} onClose={() => setSelected(null)} />}
 
+      {deleteConfirm && (
+        <div onClick={() => setDeleteConfirm(null)} style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.85)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#0d1117", borderRadius: 16, padding: 24, border: "1px solid #1e293b", width: "100%", maxWidth: 320 }}>
+            <div style={{ color: "#e2e8f0", fontSize: 16, fontWeight: 700, marginBottom: 8 }}>🗑 Delete Record?</div>
+            <div style={{ color: "#718096", fontSize: 13, marginBottom: 20, wordBreak: "break-all" }}>{deleteConfirm.replace(".json","")}</div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setDeleteConfirm(null)} style={{ flex: 1, background: "#1e293b", border: "none", color: "#718096", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 14 }}>Cancel</button>
+              <button onClick={() => deleteHistoryFile(deleteConfirm)} style={{ flex: 1, background: "#2d0f0f", border: "1px solid #e53e3e", color: "#fc8181", borderRadius: 8, padding: "10px", cursor: "pointer", fontSize: 14, fontWeight: 700 }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ background: "#080d14", borderBottom: "1px solid #1e293b", padding: "12px 16px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
           <div style={{ background: "linear-gradient(135deg, #1a365d, #2b6cb0)", borderRadius: 8, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>📹</div>
@@ -215,7 +253,7 @@ export default function App() {
       {showHistory && (
         <div style={{ background: "#0a0f1a", borderBottom: "1px solid #1e293b", padding: "10px 16px", display: "flex", gap: 8, flexWrap: "wrap" }}>
           {history.length === 0 ? <span style={{ color: "#4a5568", fontSize: 12 }}>No archived videos yet</span>
-            : history.map(f => <button key={f} onClick={() => loadHistoryFile(f)} style={{ background: "#111827", border: "1px solid #1e293b", color: "#90cdf4", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontFamily: "'Space Mono', monospace" }}>{f.replace(".json", "").substring(0, 20)}</button>)}
+            : history.map(f => <button key={f} onClick={() => loadHistoryFile(f)} onTouchStart={() => startLongPress(f)} onTouchEnd={cancelLongPress} onMouseDown={() => startLongPress(f)} onMouseUp={cancelLongPress} onMouseLeave={cancelLongPress} style={{ background: "#111827", border: "1px solid #1e293b", color: "#90cdf4", borderRadius: 6, padding: "4px 10px", cursor: "pointer", fontSize: 10, fontFamily: "'Space Mono', monospace", userSelect: "none" }}>{f.replace(".json", "").substring(0, 20)}</button>)}
         </div>
       )}
 
