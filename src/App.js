@@ -97,16 +97,18 @@ function PersonModal({ card, onClose }) {
             </div>
           </div>
 
-          {/* Snapshot */}
-          {card.snapshot_b64 && (
+          {/* Passport Face Photo */}
+          {(card.face_b64 || card.snapshot_b64) && (
             <div style={{ marginBottom: 16 }}>
-              <div style={{ color: "#1a4a1a", fontSize: 9, fontFamily: "monospace", letterSpacing: "0.15em", marginBottom: 6 }}>// CAPTURE</div>
-              <div style={{ background: "#010a01", border: "1px solid #0a2a0a", borderRadius: 8, padding: 10, textAlign: "center", position: "relative" }}>
+              <div style={{ color: "#1a4a1a", fontSize: 9, fontFamily: "monospace", letterSpacing: "0.15em", marginBottom: 6 }}>
+                {card.face_b64 ? "// PASSPORT PHOTO" : "// CAPTURE"}
+              </div>
+              <div style={{ background: card.face_b64 ? "#ffffff" : "#010a01", border: "1px solid #0a2a0a", borderRadius: 8, padding: 10, textAlign: "center", position: "relative" }}>
                 <div style={{ position: "absolute", top: 6, left: 6, width: 12, height: 12, borderTop: "1px solid #00ff41", borderLeft: "1px solid #00ff41" }} />
                 <div style={{ position: "absolute", top: 6, right: 6, width: 12, height: 12, borderTop: "1px solid #00ff41", borderRight: "1px solid #00ff41" }} />
                 <div style={{ position: "absolute", bottom: 6, left: 6, width: 12, height: 12, borderBottom: "1px solid #00ff41", borderLeft: "1px solid #00ff41" }} />
                 <div style={{ position: "absolute", bottom: 6, right: 6, width: 12, height: 12, borderBottom: "1px solid #00ff41", borderRight: "1px solid #00ff41" }} />
-                <img src={`data:image/jpeg;base64,${card.snapshot_b64}`} alt="capture" style={{ maxHeight: 200, borderRadius: 4, filter: "brightness(0.95) saturate(0.9)" }} />
+                <img src={`data:image/jpeg;base64,${card.face_b64 || card.snapshot_b64}`} alt="passport" style={{ maxHeight: 200, borderRadius: 4 }} />
               </div>
             </div>
           )}
